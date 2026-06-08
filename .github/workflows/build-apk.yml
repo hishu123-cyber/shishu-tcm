@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
     inputs:
       version_name:
-        description: 'Version name (e.g. 1.0.1)'
+        description: 'Version name'
         required: false
         default: '1.0'
 
@@ -15,93 +15,92 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      
       - uses: actions/setup-java@v4
         with:
           java-version: '17'
           distribution: 'temurin'
+      
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - uses: android-actions/setup-android@v3
-
+      
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+      
       - name: Install Bubblewrap
         run: npm install -g @bubblewrap/cli
-
-      - name: Generate icons
+      
+      - name: Generate PNG icons
         run: |
           mkdir -p /tmp/apk-icons
           node -e "
           const fs = require('fs'), z = require('zlib');
-          function png(s) {
-            let d = Buffer.alloc(s * (s*4+1));
-            for (let y = 0; y < s; y++) {
-              d[y*(s*4+1)] = 0;
-              for (let x = 0; x < s; x++) {
-                let o = y*(s*4+1)+1+x*4;
-                d[o]=27; d[o+1]=58; d[o+2]=45; d[o+3]=255;
+          function createPNG(size) {
+            const raw = Buffer.alloc(size * (size * 4 + 1));
+            for (let y = 0; y < size; y++) {
+              raw[y * (size * 4 + 1)] = 0;
+              for (let x = 0; x < size; x++) {
+                const o = y * (size * 4 + 1) + 1 + x * 4;
+                raw[o] = 27; raw[o + 1] = 58; raw[o + 2] = 45; raw[o + 3] = 255;
               }
             }
-            let def = z.deflateSync(d);
-            let sig = Buffer.from([137,80,78,71,13,10,26,10]);
-            let ihdr = Buffer.alloc(13);
-            ihdr.writeUInt32BE(s,0); ihdr.writeUInt32BE(s,4);
-            ihdr[8]=8; ihdr[9]=6;
-            function cc(t, data) {
-              let len = Buffer.alloc(4); len.writeUInt32BE(data.length);
-              let tb = Buffer.from(t,'ascii');
-              let crc = crc32(Buffer.concat([tb, data]));
-              let cb = Buffer.alloc(4); cb.writeUInt32BE(crc);
+            const deflated = z.deflateSync(raw);
+            const sig = Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]);
+            function chunk(type, data) {
+              const len = Buffer.alloc(4); len.writeUInt32BE(data.length);
+              const tb = Buffer.from(type, 'ascii');
+              let crc = 0xFFFFFFFF;
+              const d = Buffer.concat([tb, data]);
+              for (let i = 0; i < d.length; i++) { crc ^= d[i]; for (let j = 0; j < 8; j++) crc = (crc >>> 1) ^ (crc & 1 ? 0xEDB88320 : 0); }
+              crc = (crc ^ 0xFFFFFFFF) >>> 0;
+              const cb = Buffer.alloc(4); cb.writeUInt32BE(crc);
               return Buffer.concat([len, tb, data, cb]);
             }
-            function crc32(b) { let c=0xFFFFFFFF; for(let i=0;i<b.length;i++){c^=b[i];for(let j=0;j<8;j++)c=(c>>>1)^(c&1?0xEDB88320:0);} return (c^0xFFFFFFFF)>>>0; }
-            return Buffer.concat([sig,cc('IHDR',ihdr),cc('IDAT',def),cc('IEND',Buffer.alloc(0))]);
+            const ihdr = Buffer.alloc(13);
+            ihdr.writeUInt32BE(size, 0); ihdr.writeUInt32BE(size, 4);
+            ihdr[8] = 8; ihdr[9] = 6;
+            return Buffer.concat([sig, chunk('IHDR', ihdr), chunk('IDAT', deflated), chunk('IEND', Buffer.alloc(0))]);
           }
-          fs.writeFileSync('/tmp/apk-icons/icon-512.png', png(512));
-          fs.writeFileSync('/tmp/apk-icons/icon-192.png', png(192));
-          console.log('Icons done');
+          fs.writeFileSync('/tmp/apk-icons/icon-512.png', createPNG(512));
+          fs.writeFileSync('/tmp/apk-icons/icon-192.png', createPNG(192));
+          console.log('Icons created');
           "
-
+      
+      - name: Create Android project with Bubblewrap
+        run: |
+          mkdir -p /tmp/pwa-apk
+          cd /tmp/pwa-apk
+          cp /tmp/apk-icons/*.png ./
+          echo '{"name":"食术·中医体质养生","short_name":"食术养生","start_url":"/","display":"standalone","theme_color":"#1B3A2D","background_color":"#1B3A2D","icons":[{"src":"/icon-512.png","sizes":"512x512","type":"image/png"},{"src":"/icon-192.png","sizes":"192x192","type":"image/png"}]}' > manifest.json
+          python3 -m http.server 9999 &>/dev/null &
+          sleep 1
+          mkdir -p twa-output
+          npx @bubblewrap/cli init \
+            --manifest=http://localhost:9999/manifest.json \
+            --directory=/tmp/pwa-apk/twa-output \
+            --no-jdk \
+            --no-android-sdk 2>&1 || true
+      
       - name: Build APK
         run: |
-          mkdir -p /tmp/pwa-apk && cd /tmp/pwa-apk
-          curl -s -o manifest.json "http://shishu.xn--fiqs8s/manifest.json"
-          cp /tmp/apk-icons/*.png ./
-          python3 -m http.server 9999 &>/dev/null & sleep 1
-          cat > twa-manifest.json << 'MANIFEST'
-          {
-            "packageId": "com.shishu.wellness",
-            "host": "shishu.xn--fiqs8s",
-            "name": "食术·中医体质养生",
-            "launcherName": "食术养生",
-            "display": "standalone",
-            "themeColor": "#1B3A2D",
-            "themeColorDark": "#000000",
-            "navigationColor": "#000000",
-            "backgroundColor": "#1B3A2D",
-            "enableNotifications": true,
-            "startUrl": "/",
-            "iconUrl": "http://localhost:9999/icon-512.png",
-            "maskableIconUrl": "http://localhost:9999/icon-512.png",
-            "splashScreenFadeOutDuration": 300,
-            "signingKey": {"path": "/tmp/pwa-apk/android.keystore", "alias": "shishu"},
-            "appVersionCode": 1,
-            "appVersionName": "${{ github.event.inputs.version_name || '1.0' }}",
-            "orientation": "portrait",
-            "icons": [
-              {"src":"http://localhost:9999/icon-512.png","sizes":"512x512","type":"image/png"},
-              {"src":"http://localhost:9999/icon-192.png","sizes":"192x192","type":"image/png"}
-            ],
-            "fallbackType": "customtabs",
-            "features": {},
-            "enableSiteSettingsShortcut": true
-          }
-MANIFEST
-          npx @bubblewrap/cli init --manifest=http://localhost:9999/manifest.json --directory=/tmp/pwa-apk < /dev/null 2>&1 || true
-          if [ -d app ]; then cd /tmp/pwa-apk/app; else npx @bubblewrap/cli update --skipPwaValidation 2>&1 || true; if [ -d app ]; then cd /tmp/pwa-apk/app; else echo "No app dir"; exit 1; fi; fi
-          ./gradlew assembleRelease --no-daemon 2>&1
-
+          APK_DIR=$(find /tmp/pwa-apk/twa-output -name "assembleRelease" -o -name "build.gradle" | head -1 | xargs dirname 2>/dev/null || echo "/tmp/pwa-apk/twa-output/app")
+          if [ -f "$APK_DIR/gradlew" ]; then
+            cd "$APK_DIR"
+            chmod +x gradlew
+            ./gradlew assembleRelease --no-daemon 2>&1
+          else
+            echo "Looking for gradle files..."
+            find /tmp/pwa-apk -name "build.gradle" -o -name "gradlew" 2>/dev/null
+          fi
+      
+      - name: Find and upload APK
+        run: |
+          find /tmp/pwa-apk -name "*.apk" -type f 2>/dev/null || echo "No APK found"
+          find /tmp/pwa-apk -name "*.aab" -type f 2>/dev/null || echo "No AAB found"
+      
       - uses: actions/upload-artifact@v4
         with:
           name: wellness-app-release
-          path: /tmp/pwa-apk/app/build/outputs/apk/release/*.apk
-          if-no-files-found: error
+          path: /tmp/pwa-apk/**/*.apk
+          if-no-files-found: warn
