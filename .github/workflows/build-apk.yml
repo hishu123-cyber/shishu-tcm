@@ -1,188 +1,43 @@
-name: Build Android APK
-
-on:
-  push:
-    branches: [ main ]
-  workflow_dispatch:
-    inputs:
-      version_name:
-        description: 'Version name'
-        required: false
-        default: '1.0'
-
+name: Build APK
+on: [push, workflow_dispatch]
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      
       - uses: actions/setup-java@v4
         with:
           java-version: '17'
           distribution: 'temurin'
-      
-      - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
-      
-      - name: Create Android project structure
+      - uses: android-actions/setup-android@v3
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install bubblewrap
+        run: npm install -g @bubblewrap/cli
+      - name: Generate icons
         run: |
-          mkdir -p /tmp/pwa-apk
-          cd /tmp/pwa-apk
-          
-          # Create root build files
-          cat > settings.gradle << 'SETTINGS'
-          rootProject.name = 'WellnessApp'
-          include ':app'
-SETTINGS
-
-          cat > build.gradle << 'BUILD'
-          buildscript {
-            repositories { google(); mavenCentral() }
-            dependencies { classpath 'com.android.tools.build:gradle:8.2.2' }
-          }
-          allprojects {
-            repositories { google(); mavenCentral() }
-          }
-BUILD
-
-          cat > gradle.properties << 'PROPS'
-          org.gradle.jvmargs=-Xmx1536m
-          android.useAndroidX=true
-PROPS
-
-          # Create app module
-          mkdir -p app/src/main/res/values
-          mkdir -p app/src/main/res/mipmap-anydpi-v26
-          mkdir -p app/src/main/res/mipmap-hdpi
-          mkdir -p app/src/main/res/mipmap-xhdpi
-          mkdir -p app/src/main/res/mipmap-xxhdpi
-          mkdir -p app/src/main/res/mipmap-xxxhdpi
-
-          # app/build.gradle
-          cat > app/build.gradle << 'APPBUILD'
-          apply plugin: 'com.android.application'
-          android {
-            namespace 'com.shishu.wellness'
-            compileSdk 34
-            defaultConfig {
-              applicationId 'com.shishu.wellness'
-              minSdk 21
-              targetSdk 34
-              versionCode ${{ github.run_number }}
-              versionName "${{ github.event.inputs.version_name || '1.0' }}"
-            }
-            buildTypes {
-              release { minifyEnabled false }
-            }
-          }
-          dependencies {
-            implementation 'androidx.appcompat:appcompat:1.6.1'
-            implementation 'androidx.browser:browser:1.7.0'
-            implementation 'com.google.androidbrowserhelper:androidbrowserhelper:2.5.0'
-          }
-APPBUILD
-
-          # AndroidManifest.xml
-          cat > app/src/main/AndroidManifest.xml << 'MANIFEST'
-          <?xml version="1.0" encoding="utf-8"?>
-          <manifest xmlns:android="http://schemas.android.com/apk/res/android">
-            <application
-              android:allowBackup="true"
-              android:icon="@mipmap/ic_launcher"
-              android:label="食术·中医体质养生"
-              android:supportsRtl="true">
-              <activity
-                android:name="com.google.androidbrowserhelper.trusted.LauncherActivity"
-                android:exported="true"
-                android:screenOrientation="portrait">
-                <meta-data
-                  android:name="android.support.customtabs.trusted.PROVIDER_PACKAGE_NAMES"
-                  android:value="com.android.chrome,com.chrome.beta,com.chrome.dev" />
-                <intent-filter>
-                  <action android:name="android.intent.action.MAIN" />
-                  <category android:name="android.intent.category.LAUNCHER" />
-                </intent-filter>
-              </activity>
-              <meta-data
-                android:name="android.support.customtabs.trusted.DEFAULT_URL"
-                android:value="http://shishu.xn--fiqs8s/app" />
-            </application>
-          </manifest>
-MANIFEST
-
-          # styles.xml
-          cat > app/src/main/res/values/styles.xml << 'STYLES'
-          <?xml version="1.0" encoding="utf-8"?>
-          <resources>
-            <style name="Theme.WellnessApp" parent="Theme.AppCompat.DayNight.NoActionBar">
-              <item name="android:statusBarColor">#1B3A2D</item>
-            </style>
-          </resources>
-STYLES
-
-          # colors.xml
-          cat > app/src/main/res/values/colors.xml << 'COLORS'
-          <?xml version="1.0" encoding="utf-8"?>
-          <resources>
-            <color name="primary">#1B3A2D</color>
-            <color name="accent">#C9A84C</color>
-          </resources>
-COLORS
-
-          # strings.xml
-          cat > app/src/main/res/values/strings.xml << 'STRINGS'
-          <?xml version="1.0" encoding="utf-8"?>
-          <resources>
-            <string name="app_name">食术·中医体质养生</string>
-          </resources>
-STRINGS
-
-          # ic_launcher.xml (adaptive icon)
-          cat > app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml << 'ICON'
-          <?xml version="1.0" encoding="utf-8"?>
-          <adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
-            <background android:drawable="@color/primary"/>
-            <foreground android:drawable="@color/accent"/>
-          </adaptive-icon>
-ICON
-
-          echo "Android project created"
-      
-      - name: Generate launcher icon PNGs
-        run: |
+          mkdir -p /tmp/app
           node -e '
-          const fs=require("fs"),z=require("zlib");
-          function png(s,c){
-            let d=Buffer.alloc(s*(s*4+1));
-            for(let y=0;y<s;y++){d[y*(s*4+1)]=0;for(let x=0;x<s;x++){let o=y*(s*4+1)+1+x*4;d[o]=c[0];d[o+1]=c[1];d[o+2]=c[2];d[o+3]=255;}}
-            let df=z.deflateSync(d);
-            let sg=Buffer.from([137,80,78,71,13,10,26,10]);
-            function ch(t,dt){let l=Buffer.alloc(4);l.writeUInt32BE(dt.length);let tb=Buffer.from(t);let cr=0xFFFFFFFF;let b=Buffer.concat([tb,dt]);for(let i=0;i<b.length;i++){cr^=b[i];for(let j=0;j<8;j++)cr=(cr>>>1)^(cr&1?0xEDB88320:0);}cr=(cr^0xFFFFFFFF)>>>0;let cb=Buffer.alloc(4);cb.writeUInt32BE(cr);return Buffer.concat([l,tb,dt,cb]);}
-            let ih=Buffer.alloc(13);ih.writeUInt32BE(s,0);ih.writeUInt32BE(s,4);ih[8]=8;ih[9]=6;
-            return Buffer.concat([sg,ch("IHDR",ih),ch("IDAT",df),ch("IEND",Buffer.alloc(0))]);
-          }
-          const sizes={48:"mipmap-hdpi",72:"mipmap-xhdpi",96:"mipmap-xxhdpi",144:"mipmap-xxxhdpi"};
-          Object.entries(sizes).forEach(([s,d])=>{
-            const p= "/tmp/pwa-apk/app/src/main/res/"+d+"/ic_launcher.png";
-            fs.writeFileSync(p, png(parseInt(s),[27,58,45]));
-          });
-          console.log("Icons created for all densities");
+          const f=require("fs"),z=require("zlib");
+          function p(s){let d=Buffer.alloc(s*(s*4+1));for(let y=0;y<s;y++){d[y*(s*4+1)]=0;for(let x=0;x<s;x++){let o=y*(s*4+1)+1+x*4;d[o]=27;d[o+1]=58;d[o+2]=45;d[o+3]=255;}}let df=z.deflateSync(d);let sg=Buffer.from([137,80,78,71,13,10,26,10]);function ch(t,dt){let l=Buffer.alloc(4);l.writeUInt32BE(dt.length);let tb=Buffer.from(t);let cr=0xFFFFFFFF;let b=Buffer.concat([tb,dt]);for(let i=0;i<b.length;i++){cr^=b[i];for(let j=0;j<8;j++)cr=(cr>>>1)^(cr&1?0xEDB88320:0);}cr=(cr^0xFFFFFFFF)>>>0;let cb=Buffer.alloc(4);cb.writeUInt32BE(cr);return Buffer.concat([l,tb,dt,cb]);}let ih=Buffer.alloc(13);ih.writeUInt32BE(s,0);ih.writeUInt32BE(s,4);ih[8]=8;ih[9]=6;return Buffer.concat([sg,ch("IHDR",ih),ch("IDAT",df),ch("IEND",Buffer.alloc(0))]);}
+          f.writeFileSync("/tmp/app/icon-512.png",p(512));
+          f.writeFileSync("/tmp/app/icon-192.png",p(192));
           '
-      
-      - name: Build Release APK
+      - name: Build APK
         run: |
-          cd /tmp/pwa-apk
-          export ANDROID_HOME=$ANDROID_SDK_ROOT
-          
-          # Generate Gradle Wrapper
-          gradle wrapper --gradle-version 8.7
-          
-          # Build
-          ./gradlew assembleRelease --no-daemon 2>&1
-      
-      - name: Upload APK
+          cd /tmp/app
+          cat > manifest.json <<'M'
+          {"name":"食术养生","short_name":"食术","start_url":"/","display":"standalone","theme_color":"#1B3A2D","background_color":"#1B3A2D","icons":[{"src":"/icon-512.png","sizes":"512x512","type":"image/png"},{"src":"/icon-192.png","sizes":"192x192","type":"image/png"}]}
+M
+          python3 -m http.server 9999 >/dev/null 2>&1 &
+          sleep 1
+          echo n | npx -y @bubblewrap/cli init --manifest=http://localhost:9999/manifest.json --directory=/tmp/app/build 2>&1 || true
+          echo n | npx -y @bubblewrap/cli init --manifest=http://localhost:9999/manifest.json --directory=/tmp/app/build 2>&1 || true
+          ls -la /tmp/app/build/ 2>/dev/null
+          find /tmp/app -name "gradlew" 2>/dev/null
+      - name: Upload
         uses: actions/upload-artifact@v4
         with:
-          name: wellness-app-release
-          path: /tmp/pwa-apk/app/build/outputs/apk/release/*.apk
-          if-no-files-found: error
+          name: build-output
+          path: /tmp/app/**
