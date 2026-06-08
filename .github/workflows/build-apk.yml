@@ -1,0 +1,107 @@
+name: Build Android APK
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+    inputs:
+      version_name:
+        description: 'Version name (e.g. 1.0.1)'
+        required: false
+        default: '1.0'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: android-actions/setup-android@v3
+
+      - name: Install Bubblewrap
+        run: npm install -g @bubblewrap/cli
+
+      - name: Generate icons
+        run: |
+          mkdir -p /tmp/apk-icons
+          node -e "
+          const fs = require('fs'), z = require('zlib');
+          function png(s) {
+            let d = Buffer.alloc(s * (s*4+1));
+            for (let y = 0; y < s; y++) {
+              d[y*(s*4+1)] = 0;
+              for (let x = 0; x < s; x++) {
+                let o = y*(s*4+1)+1+x*4;
+                d[o]=27; d[o+1]=58; d[o+2]=45; d[o+3]=255;
+              }
+            }
+            let def = z.deflateSync(d);
+            let sig = Buffer.from([137,80,78,71,13,10,26,10]);
+            let ihdr = Buffer.alloc(13);
+            ihdr.writeUInt32BE(s,0); ihdr.writeUInt32BE(s,4);
+            ihdr[8]=8; ihdr[9]=6;
+            function cc(t, data) {
+              let len = Buffer.alloc(4); len.writeUInt32BE(data.length);
+              let tb = Buffer.from(t,'ascii');
+              let crc = crc32(Buffer.concat([tb, data]));
+              let cb = Buffer.alloc(4); cb.writeUInt32BE(crc);
+              return Buffer.concat([len, tb, data, cb]);
+            }
+            function crc32(b) { let c=0xFFFFFFFF; for(let i=0;i<b.length;i++){c^=b[i];for(let j=0;j<8;j++)c=(c>>>1)^(c&1?0xEDB88320:0);} return (c^0xFFFFFFFF)>>>0; }
+            return Buffer.concat([sig,cc('IHDR',ihdr),cc('IDAT',def),cc('IEND',Buffer.alloc(0))]);
+          }
+          fs.writeFileSync('/tmp/apk-icons/icon-512.png', png(512));
+          fs.writeFileSync('/tmp/apk-icons/icon-192.png', png(192));
+          console.log('Icons done');
+          "
+
+      - name: Build APK
+        run: |
+          mkdir -p /tmp/pwa-apk && cd /tmp/pwa-apk
+          curl -s -o manifest.json "http://shishu.xn--fiqs8s/manifest.json"
+          cp /tmp/apk-icons/*.png ./
+          python3 -m http.server 9999 &>/dev/null & sleep 1
+          cat > twa-manifest.json << 'MANIFEST'
+          {
+            "packageId": "com.shishu.wellness",
+            "host": "shishu.xn--fiqs8s",
+            "name": "食术·中医体质养生",
+            "launcherName": "食术养生",
+            "display": "standalone",
+            "themeColor": "#1B3A2D",
+            "themeColorDark": "#000000",
+            "navigationColor": "#000000",
+            "backgroundColor": "#1B3A2D",
+            "enableNotifications": true,
+            "startUrl": "/",
+            "iconUrl": "http://localhost:9999/icon-512.png",
+            "maskableIconUrl": "http://localhost:9999/icon-512.png",
+            "splashScreenFadeOutDuration": 300,
+            "signingKey": {"path": "/tmp/pwa-apk/android.keystore", "alias": "shishu"},
+            "appVersionCode": 1,
+            "appVersionName": "${{ github.event.inputs.version_name || '1.0' }}",
+            "orientation": "portrait",
+            "icons": [
+              {"src":"http://localhost:9999/icon-512.png","sizes":"512x512","type":"image/png"},
+              {"src":"http://localhost:9999/icon-192.png","sizes":"192x192","type":"image/png"}
+            ],
+            "fallbackType": "customtabs",
+            "features": {},
+            "enableSiteSettingsShortcut": true
+          }
+MANIFEST
+          npx @bubblewrap/cli init --manifest=http://localhost:9999/manifest.json --directory=/tmp/pwa-apk < /dev/null 2>&1 || true
+          if [ -d app ]; then cd /tmp/pwa-apk/app; else npx @bubblewrap/cli update --skipPwaValidation 2>&1 || true; if [ -d app ]; then cd /tmp/pwa-apk/app; else echo "No app dir"; exit 1; fi; fi
+          ./gradlew assembleRelease --no-daemon 2>&1
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: wellness-app-release
+          path: /tmp/pwa-apk/app/build/outputs/apk/release/*.apk
+          if-no-files-found: error
