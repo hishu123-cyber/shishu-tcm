@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="食术·中医体质养生 — 加盟合作、品牌连锁、中医养生创业项目">
+<meta name="theme-color" content="#1B3A2D">
+<title>食术 · 中医体质养生 — 全国招商加盟</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--ink:#2C1810;--jade:#1B3A2D;--jade-light:#2E7D32;--jade-mist:#E8F5E9;--gold:#C2955E;--gold-light:#F5E6CC;--cream:#FFF8F0;--paper:#FDF8F3;--text:#3E2723;--text2:#6D4C41;--text3:#8D6E63;--border:#D7CCC8;--shadow:0 2px 12px rgba(44,24,16,.08);--font-serif:'Noto Serif SC','Source Han Serif SC','STSong',serif;--font-sans:'Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif;--radius:0}
+html{scroll-behavior:smooth}
+body{font-family:var(--font-sans);color:var(--text);background:var(--paper);line-height:1.8;font-size:15px}
+a{text-decoration:none;color:inherit}
+
+/* Nav */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(255,252,248,.97);backdrop-filter:blur(12px);border-bottom:1px solid rgba(44,24,16,.08);padding:0 24px}
+nav .inner{max-width:1200px;margin:0 auto;display:flex;align-items:center;height:68px;justify-content:space-between}
+nav .logo{font-family:var(--font-serif);font-size:22px;font-weight:700;display:flex;align-items:center;gap:8px;color:var(--jade)}
+nav .logo .logo-icon{width:34px;height:34px;background:var(--jade);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px}
+nav .logo span{font-size:13px;color:var(--gold);font-weight:400}
+nav .menu{display:flex;gap:4px;align-items:center;overflow-x:auto}
+nav .menu a{white-space:nowrap;padding:6px 14px;font-size:13px;color:var(--text2);transition:all .25s;position:relative}
+nav .menu a::after{content:'';position:absolute;bottom:0;left:50%;width:0;height:2px;background:var(--gold);transition:all .3s;transform:translateX(-50%)}
+nav .menu a:hover{color:var(--jade)}
+nav .menu a:hover::after{width:60%}
+nav .menu .btn-nav{background:var(--jade);color:#fff;padding:7px 18px;font-size:13px;letter-spacing:1px}
+nav .menu .btn-nav::after{display:none}
+nav .menu .btn-nav:hover{background:var(--jade-light);color:#fff;transform:translateY(-1px)}
+nav .hamburger{display:none;background:none;border:none;font-size:24px;color:var(--jade);cursor:pointer}
+
+/* Hero 品牌定位 */
+.hero{min-height:100vh;background:linear-gradient(135deg,#1B3A2D 0%,#2E7D32 50%,#388E3C 100%);position:relative;overflow:hidden;display:flex;align-items:center;padding:100px 24px 60px}
+.hero::after{content:'';position:absolute;bottom:0;left:0;right:0;height:80px;background:linear-gradient(to top,var(--paper),transparent)}
+.hero .inner{max-width:1200px;margin:0 auto;display:grid;grid-template-columns:1.1fr .9fr;gap:60px;align-items:center;position:relative;z-index:2}
+.hero-text{color:#fff}
+.hero-text .slogan{font-family:var(--font-serif);font-size:14px;color:var(--gold-light);letter-spacing:4px;margin-bottom:8px}
+.hero-text h1{font-family:var(--font-serif);font-size:48px;font-weight:700;line-height:1.3;letter-spacing:2px}
+.hero-text h1 em{font-style:normal;color:var(--gold-light)}
+.hero-text .sub{font-size:16px;color:rgba(255,255,255,.85);margin-top:16px;line-height:1.9}
+.hero-text .stat-row{display:flex;gap:30px;margin-top:24px;padding:20px 0;border-top:1px solid rgba(255,255,255,.15);border-bottom:1px solid rgba(255,255,255,.15)}
+.hero-text .stat-item{text-align:center}
+.hero-text .stat-item .num{font-size:28px;font-weight:700;font-family:var(--font-serif);color:var(--gold-light)}
+.hero-text .stat-item .label{font-size:12px;color:rgba(255,255,255,.7);margin-top:2px}
+.hero-btns{display:flex;gap:14px;margin-top:28px}
+.hero-btns .btn{display:inline-flex;align-items:center;gap:10px;padding:14px 32px;border:none;font-size:15px;font-weight:600;transition:all .3s;cursor:pointer;letter-spacing:1px}
+.hero-btns .btn-primary{background:#fff;color:var(--jade);box-shadow:0 4px 20px rgba(0,0,0,.2)}
+.hero-btns .btn-primary:hover{transform:translateY(-3px);box-shadow:0 8px 30px rgba(0,0,0,.25)}
+.hero-btns .btn-outline{background:transparent;color:#fff;border:2px solid rgba(255,255,255,.5)}
+.hero-btns .btn-outline:hover{background:rgba(255,255,255,.1);border-color:#fff;transform:translateY(-3px)}
+.hero-phone{width:300px;border-radius:24px;overflow:hidden;background:#fff;box-shadow:0 20px 60px rgba(0,0,0,.3);aspect-ratio:9/19.5;margin:0 auto}
+.hero-phone iframe{width:100%;height:100%;border:none}
+
+/* Section 通用 */
+section{padding:80px 24px}
+section .inner{max-width:1200px;margin:0 auto}
+.section-title{text-align:center;margin-bottom:48px}
+.section-title .pre{font-family:var(--font-serif);font-size:13px;color:var(--gold);letter-spacing:3px;margin-bottom:6px}
+.section-title h2{font-family:var(--font-serif);font-size:30px;font-weight:600;color:var(--jade);letter-spacing:2px}
+.section-title p{font-size:14px;color:var(--text3);margin-top:8px;max-width:600px;margin-left:auto;margin-right:auto}
+
+/* 项目介绍 */
+#intro{background:var(--cream)}
+.intro-grid{display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:center}
+.intro-text .brand-story{font-size:15px;color:var(--text2);line-height:2}
+.intro-text .brand-story strong{color:var(--jade)}
+.intro-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:30px}
+.intro-stats .item{text-align:center;padding:16px;background:#fff;box-shadow:var(--shadow)}
+.intro-stats .item .num{font-size:24px;font-weight:700;color:var(--jade);font-family:var(--font-serif)}
+.intro-stats .item .lbl{font-size:12px;color:var(--text3);margin-top:4px}
+.intro-pic{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.intro-pic .pic{aspect-ratio:4/3;background:var(--jade-mist);display:flex;align-items:center;justify-content:center;font-size:40px;font-family:var(--font-serif);color:var(--jade)}
+
+/* 加盟合作 */
+#join{background:#fff}
+.join-steps{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;margin-top:30px}
+.join-step{text-align:center;padding:24px 16px;box-shadow:var(--shadow);position:relative}
+.join-step .step-num{width:40px;height:40px;border-radius:50%;background:var(--jade);color:#fff;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;margin:0 auto 12px;font-family:var(--font-serif)}
+.join-step h4{font-size:16px;font-weight:600;color:var(--jade);margin-bottom:6px;font-family:var(--font-serif)}
+.join-step p{font-size:13px;color:var(--text3)}
+.join-models{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:30px}
+.join-model{text-align:center;padding:28px 20px;box-shadow:var(--shadow);border-top:3px solid var(--gold)}
+.join-model h4{font-family:var(--font-serif);font-size:18px;color:var(--jade);margin-bottom:6px}
+.join-model .price{font-size:24px;font-weight:700;color:var(--gold);margin:10px 0}
+.join-model ul{list-style:none;font-size:13px;color:var(--text2);line-height:2.2}
+.join-model .tag{display:inline-block;padding:2px 12px;font-size:11px;background:var(--jade-mist);color:var(--jade);margin-bottom:8px}
+
+/* 盈利分析 */
+#profit{background:var(--cream)}
+.profit-grid{display:grid;grid-template-columns:1fr 1fr;gap:30px}
+.profit-table{width:100%;border-collapse:collapse;background:#fff;box-shadow:var(--shadow)}
+.profit-table th,.profit-table td{padding:12px 16px;text-align:center;font-size:13px;border-bottom:1px solid var(--border)}
+.profit-table th{background:var(--jade);color:#fff;font-weight:500;font-family:var(--font-serif);letter-spacing:1px}
+.profit-table td{color:var(--text2)}
+.profit-table .highlight{color:var(--jade);font-weight:600}
+.case-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:20px}
+.case-card{padding:20px;background:#fff;box-shadow:var(--shadow)}
+.case-card .city{font-weight:600;color:var(--jade);font-family:var(--font-serif)}
+.case-card .detail{font-size:13px;color:var(--text3);margin-top:4px;line-height:1.8}
+.case-card .roi{color:var(--gold);font-weight:600;font-size:14px;margin-top:6px}
+
+/* 支持体系 */
+#support{background:#fff}
+.support-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+.support-card{padding:28px;box-shadow:var(--shadow);text-align:center;transition:all .3s}
+.support-card:hover{transform:translateY(-4px);box-shadow:0 8px 24px rgba(44,24,16,.12)}
+.support-card .icon{font-size:36px;margin-bottom:12px}
+.support-card h4{font-family:var(--font-serif);font-size:17px;color:var(--jade);margin-bottom:8px}
+.support-card p{font-size:13px;color:var(--text3);line-height:1.8}
+.support-card ul{list-style:none;text-align:left;font-size:13px;color:var(--text2);line-height:2;margin-top:8px;padding-left:8px}
+
+/* 新闻动态 */
+#news{background:var(--cream)}
+.news-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.news-card{background:#fff;box-shadow:var(--shadow);overflow:hidden;transition:all .3s}
+.news-card:hover{transform:translateY(-4px);box-shadow:0 8px 24px rgba(44,24,16,.12)}
+.news-card .img{height:160px;background:var(--jade-mist);display:flex;align-items:center;justify-content:center;font-size:36px;color:var(--jade)}
+.news-card .body{padding:16px}
+.news-card .date{font-size:11px;color:var(--text3);margin-bottom:4px}
+.news-card h4{font-size:15px;color:var(--jade);margin-bottom:6px;font-family:var(--font-serif)}
+.news-card p{font-size:13px;color:var(--text3)}
+
+/* 联系我们 */
+#contact{background:var(--jade);color:#fff}
+#contact .inner{display:grid;grid-template-columns:1fr 1fr;gap:40px}
+.contact-info h2{font-family:var(--font-serif);font-size:28px;margin-bottom:16px;letter-spacing:2px}
+.contact-info p{font-size:14px;color:rgba(255,255,255,.8);line-height:2}
+.contact-info .tel{font-size:24px;font-weight:700;color:var(--gold-light);font-family:var(--font-serif);margin:16px 0;letter-spacing:1px}
+.contact-info .hours{font-size:13px;color:rgba(255,255,255,.6)}
+.contact-form{background:rgba(255,255,255,.08);padding:28px}
+.contact-form h3{font-family:var(--font-serif);font-size:18px;margin-bottom:16px;letter-spacing:1px}
+.contact-form input,.contact-form select,.contact-form textarea{width:100%;padding:10px 14px;border:none;margin-bottom:12px;font-size:14px;background:rgba(255,255,255,.9);color:var(--ink);font-family:var(--font-sans)}
+.contact-form textarea{min-height:80px;resize:vertical}
+.contact-form button{width:100%;padding:12px;background:var(--gold);color:#fff;border:none;font-size:15px;font-weight:600;cursor:pointer;letter-spacing:2px;transition:all .2s}
+.contact-form button:hover{background:#A87D4A}
+
+/* Footer */
+footer{background:var(--ink);color:rgba(255,255,255,.5);padding:40px 24px;text-align:center;font-size:13px}
+footer .brand{font-family:var(--font-serif);font-size:16px;color:rgba(255,255,255,.6);margin-bottom:10px;letter-spacing:3px}
+footer .links{display:flex;justify-content:center;gap:20px;margin-bottom:12px;flex-wrap:wrap}
+footer .links a{color:rgba(255,255,255,.5);transition:color .2s}
+footer .links a:hover{color:var(--gold)}
+footer .copy{color:rgba(255,255,255,.3);font-size:12px}
+
+/* Mobile Nav */
+@media(max-width:900px){
+  nav .menu{display:none;flex-direction:column;position:absolute;top:68px;left:0;right:0;background:rgba(255,252,248,.98);padding:16px;border-bottom:1px solid var(--border)}
+  nav .menu.open{display:flex}
+  nav .hamburger{display:block}
+  .hero .inner{grid-template-columns:1fr;text-align:center}
+  .hero-text h1{font-size:32px}
+  .hero-text .stat-row{justify-content:center;gap:20px}
+  .hero-btns{justify-content:center;flex-wrap:wrap}
+  .hero-phone{display:none}
+  .intro-grid,.profit-grid,#contact .inner{grid-template-columns:1fr}
+  .intro-stats{grid-template-columns:repeat(2,1fr)}
+  .join-steps,.join-models,.support-grid,.news-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<nav><div class="inner">
+  <a href="#" class="logo"><span class="logo-icon">食</span> 食术 <span>· 中医养生</span></a>
+  <button class="hamburger" onclick="document.querySelector('nav .menu').classList.toggle('open')">☰</button>
+  <div class="menu">
+    <a href="#intro">项目介绍</a>
+    <a href="#join">加盟合作</a>
+    <a href="#profit">盈利分析</a>
+    <a href="#support">支持体系</a>
+    <a href="#news">新闻动态</a>
+    <a href="#contact">联系我们</a>
+    <a href="/app?demo=1" class="btn-nav">体验APP</a>
+  </div>
+</div></nav>
+
+<!-- Hero -->
+<section class="hero"><div class="inner">
+  <div class="hero-text">
+    <div class="slogan">— 全国招商加盟 · 共享中医蓝海 —</div>
+    <h1>你的随身<em>中医</em>养生师<br>千亿大健康赛道</h1>
+    <p class="sub">「上工治未病」— 基于中医九种体质理论，打造智能养生管理平台<br>线上线下融合，低门槛高回报，总部全程扶持</p>
+    <div class="stat-row">
+      <div class="stat-item"><div class="num">200+</div><div class="label">合作门店</div></div>
+      <div class="stat-item"><div class="num">50W+</div><div class="label">注册用户</div></div>
+      <div class="stat-item"><div class="num">95%</div><div class="label">满意度</div></div>
+      <div class="stat-item"><div class="num">3-6月</div><div class="label">回本周期</div></div>
+    </div>
+    <div class="hero-btns">
+      <a href="#join" class="btn btn-primary">📋 加盟咨询</a>
+      <a href="#profit" class="btn btn-outline">💰 盈利测算</a>
+      <a href="/app?demo=1" class="btn btn-outline">🚀 体验产品</a>
+    </div>
+  </div>
+  <div><div class="hero-phone"><iframe src="/app?demo=1&v=2" loading="lazy"></iframe></div></div>
+</div></section>
+
+<!-- 项目介绍 -->
+<section id="intro"><div class="inner">
+  <div class="section-title"><div class="pre">— 品牌故事 —</div><h2>缘起《黄帝内经》</h2><p>让传统中医智慧，走进千万现代人的生活</p></div>
+  <div class="intro-grid">
+    <div class="intro-text">
+      <div class="brand-story">
+        <p><strong>食术</strong> 品牌诞生于「治未病」这一核心中医理念。我们坚信，最好的医疗是预防。</p>
+        <p style="margin-top:12px">通过 <strong>AI + 中医体质辨识</strong> 技术，将传统九种体质理论数字化、智能化，为用户提供从体质测评、健康日记、食疗药膳、节气养生到在线问诊的全链条健康管理服务。</p>
+        <p style="margin-top:12px">目前已服务超过 <strong>50万</strong> 用户，合作门店遍布全国 <strong>30+</strong> 城市，成为中医养生领域的标杆品牌。</p>
+      </div>
+      <div class="intro-stats">
+        <div class="item"><div class="num">50W+</div><div class="lbl">用户</div></div>
+        <div class="item"><div class="num">200+</div><div class="lbl">门店</div></div>
+        <div class="item"><div class="num">30+</div><div class="lbl">城市</div></div>
+        <div class="item"><div class="num">9种</div><div class="lbl">体质</div></div>
+      </div>
+    </div>
+    <div class="intro-pic">
+      <div class="pic">🌿 APP首页</div>
+      <div class="pic">🧘 体质测评</div>
+      <div class="pic">🍵 茶养推荐</div>
+      <div class="pic">🏥 在线问诊</div>
+    </div>
+  </div>
+</div></section>
+
+<!-- 加盟合作 -->
+<section id="join"><div class="inner">
+  <div class="section-title"><div class="pre">— 携手共赢 —</div><h2>加盟合作模式</h2><p>多种合作方式，灵活选择，总有一款适合你</p></div>
+  <div class="join-models">
+    <div class="join-model">
+      <div class="tag">入门级</div>
+      <h4>标准店</h4>
+      <div class="price">¥9.8万</div>
+      <ul><li>品牌授权使用</li><li>APP管理系统</li><li>总部培训支持</li><li>开业运营指导</li><li>统一物料供应</li></ul>
+    </div>
+    <div class="join-model">
+      <div class="tag">🔥 主力推荐</div>
+      <h4>旗舰店</h4>
+      <div class="price">¥19.8万</div>
+      <ul><li>标准店全部权益</li><li>区域保护 3km</li><li>线下体验设备</li><li>驻店运营指导</li><li>私域流量扶持</li></ul>
+    </div>
+    <div class="join-model">
+      <div class="tag">城市合伙人</div>
+      <h4>区域代理</h4>
+      <div class="price">¥49.8万</div>
+      <ul><li>旗舰店全部权益</li><li>市级独家代理</li><li>下级加盟分成</li><li>总部联合运营</li><li>股权优先认购</li></ul>
+    </div>
+  </div>
+  <div class="section-title" style="margin-top:40px"><div class="pre">— 四步加盟 —</div><h2>简单四步，开启事业</h2></div>
+  <div class="join-steps">
+    <div class="join-step"><div class="step-num">1</div><h4>咨询了解</h4><p>在线填写意向表或拨打招商热线，了解合作详情</p></div>
+    <div class="join-step"><div class="step-num">2</div><h4>实地考察</h4><p>参观总部及样板店，体验产品，确认合作意向</p></div>
+    <div class="join-step"><div class="step-num">3</div><h4>签约培训</h4><p>签订合作协议，参加总部系统化培训课程</p></div>
+    <div class="join-step"><div class="step-num">4</div><h4>开业运营</h4><p>总部协助选址装修，派驻运营指导，顺利开业</p></div>
+  </div>
+</div></section>
+
+<!-- 盈利分析 -->
+<section id="profit"><div class="inner">
+  <div class="section-title"><div class="pre">— 投资回报 —</div><h2>盈利分析与成功案例</h2><p>数据说话，真实可考</p></div>
+  <div class="profit-grid">
+    <div>
+      <table class="profit-table">
+        <tr><th>项目</th><th>标准店</th><th>旗舰店</th></tr>
+        <tr><td>加盟费</td><td>¥9.8万</td><td>¥19.8万</td></tr>
+        <tr><td>装修设备</td><td>¥8-12万</td><td>¥15-25万</td></tr>
+        <tr><td>月均营收</td><td class="highlight">¥5-8万</td><td class="highlight">¥12-20万</td></tr>
+        <tr><td>月均毛利</td><td class="highlight">¥3-5万</td><td class="highlight">¥7-12万</td></tr>
+        <tr><td>回本周期</td><td class="highlight">3-6月</td><td class="highlight">4-8月</td></tr>
+        <tr><td>年净利润</td><td class="highlight">¥30-50万</td><td class="highlight">¥80-150万</td></tr>
+      </table>
+    </div>
+    <div>
+      <div class="case-grid">
+        <div class="case-card"><div class="city">📍 杭州·标准店</div><div class="detail">张先生，2025年3月加盟，选址社区商圈。开业第2个月实现盈利，月均营收6.2万。</div><div class="roi">ROI: 4个月回本 ✅</div></div>
+        <div class="case-card"><div class="city">📍 成都·旗舰店</div><div class="detail">李女士，2024年9月加盟，选址商业综合体。月均营收16万，已开第二家分店。</div><div class="roi">ROI: 6个月回本 ✅</div></div>
+        <div class="case-card"><div class="city">📍 西安·标准店</div><div class="detail">王先生，2025年1月加盟，依托社区健康驿站模式，复购率高达65%。</div><div class="roi">月均净利4.5万 📈</div></div>
+        <div class="case-card"><div class="city">📍 深圳·区域代理</div><div class="detail">陈总，2024年6月签约深圳代理，已发展8家下属门店，年营收超200万。</div><div class="roi">年度分红+加盟分成 💎</div></div>
+      </div>
+    </div>
+  </div>
+</div></section>
+
+<!-- 支持体系 -->
+<section id="support"><div class="inner">
+  <div class="section-title"><div class="pre">— 全程赋能 —</div><h2>八大支持体系</h2><p>从0到1，总部全程陪跑</p></div>
+  <div class="support-grid">
+    <div class="support-card"><div class="icon">🏪</div><h4>选址装修</h4><p>专业团队协助选址评估，统一VI形象设计，标准化装修方案，省心省力。</p></div>
+    <div class="support-card"><div class="icon">📱</div><h4>系统支持</h4><p>共享APP + 后台管理系统，会员管理、数据分析、营销工具一站配齐。</p></div>
+    <div class="support-card"><div class="icon">🎓</div><h4>培训体系</h4><p>总部系统化培训：中医基础、体质辨识、服务流程、运营管理、市场营销。</p></div>
+    <div class="support-card"><div class="icon">📢</div><h4>营销赋能</h4><p>线上线下联合营销，私域运营SOP，短视频获客，总部统筹投放。</p></div>
+    <div class="support-card"><div class="icon">📦</div><h4>供应链</h4><p>道地药材产地直供，标准化产品体系，统一采购降低成本，保证品质。</p></div>
+    <div class="support-card"><div class="icon">💼</div><h4>运营督导</h4><p>驻店指导 + 远程督导 + 季度巡检 + 年度复盘，确保门店持续盈利。</p></div>
+  </div>
+</div></section>
+
+<!-- 新闻动态 -->
+<section id="news"><div class="inner">
+  <div class="section-title"><div class="pre">— 品牌资讯 —</div><h2>新闻动态</h2></div>
+  <div class="news-grid">
+    <div class="news-card"><div class="img">🎉</div><div class="body"><div class="date">2026-05-20</div><h4>食术杭州旗舰店盛大开业</h4><p>位于杭州市西湖区旗舰店正式开业，首日接待客户超200人，现场签约会员86人。</p></div></div>
+    <div class="news-card"><div class="img">🏆</div><div class="body"><div class="date">2026-04-15</div><h4>获评「年度中医养生创新品牌」</h4><p>食术APP凭借AI体质辨识技术，荣获2026中国大健康产业创新峰会年度品牌大奖。</p></div></div>
+    <div class="news-card"><div class="img">🤝</div><div class="body"><div class="date">2026-03-28</div><h4>与北京中医药大学达成合作</h4><p>双方将在体质辨识模型优化、专业人才培养等方面开展深度合作，推动产学研一体化。</p></div></div>
+    <div class="news-card"><div class="img">📈</div><div class="body"><div class="date">2026-03-10</div><h4>全国门店突破200家</h4><p>食术品牌全国签约门店正式突破200家，覆盖30余个城市，月服务人次超10万。</p></div></div>
+    <div class="news-card"><div class="img">🌟</div><div class="body"><div class="date">2026-02-01</div><h4>推出节气养生2.0版本</h4><p>APP全面升级，新增AI舌诊、智能茶养推荐、24节气个性化方案等重磅功能。</p></div></div>
+    <div class="news-card"><div class="img">🌐</div><div class="body"><div class="date">2026-01-08</div><h4>食术正式开放全国加盟</h4><p>经过一年多的模式验证和打磨，食术正式启动全国城市合伙人招募计划。</p></div></div>
+  </div>
+</div></section>
+
+<!-- 联系我们 -->
+<section id="contact"><div class="inner">
+  <div class="contact-info">
+    <h2>联系我们</h2>
+    <p>如果您对我们的项目感兴趣，欢迎随时联系我们<br>专业招商顾问为您一对一解答</p>
+    <div class="tel">📞 400-888-xxxx</div>
+    <p style="font-size:14px;color:rgba(255,255,255,.7)">招商热线 · 微信同号</p>
+    <p>📍 总部地址：杭州市西湖区xxxxx</p>
+    <p>📧 合作邮箱：join@shishu.中国</p>
+    <div class="hours">⏰ 工作时间：周一至周五 9:00-18:00</div>
+  </div>
+  <form class="contact-form" onsubmit="event.preventDefault();alert('感谢您的咨询！招商顾问将在24小时内与您联系。')">
+    <h3>📋 加盟意向登记</h3>
+    <input type="text" placeholder="您的姓名" required>
+    <input type="tel" placeholder="手机号码" required>
+    <select><option>意向城市</option><option>一线城市</option><option>新一线城市</option><option>二线城市</option><option>三线及以下</option></select>
+    <select><option>意向合作模式</option><option>标准店（¥9.8万）</option><option>旗舰店（¥19.8万）</option><option>区域代理（¥49.8万）</option></select>
+    <textarea placeholder="留言内容（选填）"></textarea>
+    <button type="submit">提交意向 · 获取加盟资料</button>
+  </form>
+</div></section>
+
+<footer>
+  <div class="brand">食术 · 中医体质养生</div>
+  <div class="links"><a href="/">首页</a><a href="/landing">关于我们</a><a href="#join">加盟合作</a><a href="#contact">联系我们</a></div>
+  <div class="copy">© 2026 食术·中医体质养生 — 以传统中医智慧，守护现代人健康</div>
+</footer>
+</body>
+</html>
