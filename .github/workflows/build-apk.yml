@@ -33,74 +33,89 @@ jobs:
       
       - name: Generate PNG icons
         run: |
-          mkdir -p /tmp/apk-icons
-          node -e "
-          const fs = require('fs'), z = require('zlib');
-          function createPNG(size) {
-            const raw = Buffer.alloc(size * (size * 4 + 1));
-            for (let y = 0; y < size; y++) {
-              raw[y * (size * 4 + 1)] = 0;
-              for (let x = 0; x < size; x++) {
-                const o = y * (size * 4 + 1) + 1 + x * 4;
-                raw[o] = 27; raw[o + 1] = 58; raw[o + 2] = 45; raw[o + 3] = 255;
-              }
-            }
-            const deflated = z.deflateSync(raw);
-            const sig = Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]);
-            function chunk(type, data) {
-              const len = Buffer.alloc(4); len.writeUInt32BE(data.length);
-              const tb = Buffer.from(type, 'ascii');
-              let crc = 0xFFFFFFFF;
-              const d = Buffer.concat([tb, data]);
-              for (let i = 0; i < d.length; i++) { crc ^= d[i]; for (let j = 0; j < 8; j++) crc = (crc >>> 1) ^ (crc & 1 ? 0xEDB88320 : 0); }
-              crc = (crc ^ 0xFFFFFFFF) >>> 0;
-              const cb = Buffer.alloc(4); cb.writeUInt32BE(crc);
-              return Buffer.concat([len, tb, data, cb]);
-            }
-            const ihdr = Buffer.alloc(13);
-            ihdr.writeUInt32BE(size, 0); ihdr.writeUInt32BE(size, 4);
-            ihdr[8] = 8; ihdr[9] = 6;
-            return Buffer.concat([sig, chunk('IHDR', ihdr), chunk('IDAT', deflated), chunk('IEND', Buffer.alloc(0))]);
-          }
-          fs.writeFileSync('/tmp/apk-icons/icon-512.png', createPNG(512));
-          fs.writeFileSync('/tmp/apk-icons/icon-192.png', createPNG(192));
-          console.log('Icons created');
-          "
-      
-      - name: Create Android project with Bubblewrap
-        run: |
           mkdir -p /tmp/pwa-apk
+          node -e '
+          const fs=require("fs"),z=require("zlib");
+          function png(s){
+            let d=Buffer.alloc(s*(s*4+1));
+            for(let y=0;y<s;y++){d[y*(s*4+1)]=0;for(let x=0;x<s;x++){let o=y*(s*4+1)+1+x*4;d[o]=27;d[o+1]=58;d[o+2]=45;d[o+3]=255;}}
+            let df=z.deflateSync(d);
+            let sg=Buffer.from([137,80,78,71,13,10,26,10]);
+            function ch(t,dt){let l=Buffer.alloc(4);l.writeUInt32BE(dt.length);let tb=Buffer.from(t,"ascii");let cr=0xFFFFFFFF;let b=Buffer.concat([tb,dt]);for(let i=0;i<b.length;i++){cr^=b[i];for(let j=0;j<8;j++)cr=(cr>>>1)^(cr&1?0xEDB88320:0);}cr=(cr^0xFFFFFFFF)>>>0;let cb=Buffer.alloc(4);cb.writeUInt32BE(cr);return Buffer.concat([l,tb,dt,cb]);}
+            let ih=Buffer.alloc(13);ih.writeUInt32BE(s,0);ih.writeUInt32BE(s,4);ih[8]=8;ih[9]=6;
+            return Buffer.concat([sg,ch("IHDR",ih),ch("IDAT",df),ch("IEND",Buffer.alloc(0))]);
+          }
+          fs.writeFileSync("/tmp/pwa-apk/icon-512.png",png(512));
+          fs.writeFileSync("/tmp/pwa-apk/icon-192.png",png(192));
+          console.log("Icons created");
+          '
+      
+      - name: Create twa-manifest.json
+        run: |
+          cat > /tmp/pwa-apk/twa-manifest.json << 'EOF'
+          {
+            "packageId": "com.shishu.wellness",
+            "host": "shishu.xn--fiqs8s",
+            "name": "食术·中医体质养生",
+            "launcherName": "食术养生",
+            "display": "standalone",
+            "themeColor": "#1B3A2D",
+            "themeColorDark": "#000000",
+            "navigationColor": "#000000",
+            "navigationColorDark": "#000000",
+            "navigationDividerColor": "#000000",
+            "navigationDividerColorDark": "#000000",
+            "backgroundColor": "#1B3A2D",
+            "enableNotifications": true,
+            "startUrl": "/",
+            "iconUrl": "/tmp/pwa-apk/icon-512.png",
+            "maskableIconUrl": "/tmp/pwa-apk/icon-512.png",
+            "splashScreenFadeOutDuration": 300,
+            "signingKey": {
+              "path": "/tmp/pwa-apk/android.keystore",
+              "alias": "shishu",
+              "password": "shishu2026",
+              "keyPassword": "shishu2026"
+            },
+            "appVersionCode": ${{ github.run_number }},
+            "appVersionName": "${{ github.event.inputs.version_name || '1.0' }}",
+            "orientation": "portrait",
+            "fallbackType": "customtabs"
+          }
+          EOF
+          echo "twa-manifest.json created"
+      
+      - name: Generate Android Project
+        run: |
           cd /tmp/pwa-apk
-          cp /tmp/apk-icons/*.png ./
-          echo '{"name":"食术·中医体质养生","short_name":"食术养生","start_url":"/","display":"standalone","theme_color":"#1B3A2D","background_color":"#1B3A2D","icons":[{"src":"/icon-512.png","sizes":"512x512","type":"image/png"},{"src":"/icon-192.png","sizes":"192x192","type":"image/png"}]}' > manifest.json
-          python3 -m http.server 9999 &>/dev/null &
-          sleep 1
-          mkdir -p twa-output
-          npx @bubblewrap/cli init \
-            --manifest=http://localhost:9999/manifest.json \
-            --directory=/tmp/pwa-apk/twa-output \
-            --no-jdk \
-            --no-android-sdk 2>&1 || true
+          # Use bubblewrap to generate project from manifest
+          npx @bubblewrap/cli update --skipPwaValidation 2>&1 || true
       
       - name: Build APK
         run: |
-          APK_DIR=$(find /tmp/pwa-apk/twa-output -name "assembleRelease" -o -name "build.gradle" | head -1 | xargs dirname 2>/dev/null || echo "/tmp/pwa-apk/twa-output/app")
-          if [ -f "$APK_DIR/gradlew" ]; then
-            cd "$APK_DIR"
+          GRADLE_DIR=$(find /tmp/pwa-apk -name "build.gradle" -path "*/app/*" | head -1 | xargs dirname 2>/dev/null)
+          if [ -n "$GRADLE_DIR" ] && [ -f "$GRADLE_DIR/../gradlew" ]; then
+            cd "$GRADLE_DIR/.."
             chmod +x gradlew
             ./gradlew assembleRelease --no-daemon 2>&1
           else
-            echo "Looking for gradle files..."
+            # Check for other gradle files
             find /tmp/pwa-apk -name "build.gradle" -o -name "gradlew" 2>/dev/null
+            echo "No gradle project found, checking directories..."
+            ls -la /tmp/pwa-apk/
+            ls -la /tmp/pwa-apk/app/ 2>/dev/null || echo "No app dir"
           fi
       
-      - name: Find and upload APK
-        run: |
-          find /tmp/pwa-apk -name "*.apk" -type f 2>/dev/null || echo "No APK found"
-          find /tmp/pwa-apk -name "*.aab" -type f 2>/dev/null || echo "No AAB found"
-      
-      - uses: actions/upload-artifact@v4
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
         with:
           name: wellness-app-release
           path: /tmp/pwa-apk/**/*.apk
+          if-no-files-found: warn
+      
+      - name: Upload AAB
+        uses: actions/upload-artifact@v4
+        with:
+          name: wellness-app-aab
+          path: /tmp/pwa-apk/**/*.aab
           if-no-files-found: warn
